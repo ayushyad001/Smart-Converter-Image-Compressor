@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Converter & Image Compressor</title>
+
+  <style>
+    :root{
+      --bg1:#0f172a;
+      --bg2:#111827;
+      --card: rgba(255,255,255,0.08);
+      --stroke: rgba(255,255,255,0.14);
+      --text:#e5e7eb;
+      --muted:#cbd5e1;
+      --shadow: 0 18px 45px rgba(0,0,0,0.35);
+      --radius: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% 10%, rgba(99,102,241,0.35), transparent 55%),
+        radial-gradient(900px 600px at 85% 20%, rgba(56,189,248,0.22), transparent 55%),
+        radial-gradient(900px 600px at 50% 95%, rgba(34,197,94,0.18), transparent 55%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      display:flex;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .wrap{
+      width: 1050px;
+      max-width: 100%;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:16px;
+      margin-bottom:16px;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size: 28px;
+      letter-spacing: 0.2px;
+    }
+    .brand p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.35;
+    }
+
+    .pill{
+      padding:10px 12px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(56,189,248,0.12), rgba(34,197,94,0.10));
+      opacity:0.35;
+      pointer-events:none;
+      mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+      -webkit-mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+      padding:1px;
+      border-radius: var(--radius);
+    }
+
+    .card-inner{
+      padding:18px;
+      position:relative;
+    }
+
+    .title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:6px;
+    }
+
+    .title h2{
+      margin:0;
+      font-size: 18px;
+    }
+
+    .badge{
+      font-size: 12px;
+      color:#eaf2ff;
+      background: rgba(99,102,241,0.22);
+      border:1px solid rgba(99,102,241,0.35);
+      padding:6px 10px;
+      border-radius: 999px;
+    }
+
+    .desc{
+      margin:8px 0 14px;
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.4;
+    }
+
+    label{
+      display:block;
+      margin-top:10px;
+      font-size: 13px;
+      color: #dbeafe;
+      opacity:0.9;
+    }
+
+    input, select, button{
+      width:100%;
+      margin-top:8px;
+      padding:11px 12px;
+      font-size: 14.5px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      outline:none;
+      background: rgba(15,23,42,0.55);
+      color: var(--text);
+    }
+
+    input::placeholder{ color: rgba(226,232,240,0.6); }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn{
+      margin-top:12px;
+      border:none;
+      cursor:pointer;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.95), rgba(56,189,248,0.90));
+      box-shadow: 0 12px 30px rgba(99,102,241,0.25);
+      transition: transform 0.08s ease, filter 0.2s ease;
+    }
+    .btn:hover{ filter: brightness(1.06); }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn.green{
+      background: linear-gradient(135deg, rgba(34,197,94,0.95), rgba(16,185,129,0.90));
+      box-shadow: 0 12px 30px rgba(34,197,94,0.18);
+    }
+
+    .result{
+      margin-top:12px;
+      padding:12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(2,6,23,0.35);
+      color:#e5e7eb;
+      font-weight: 700;
+    }
+    .subnote{
+      margin-top:10px;
+      font-size: 12.5px;
+      color: rgba(203,213,225,0.9);
+      line-height:1.45;
+    }
+
+    .previewWrap{
+      margin-top: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(2,6,23,0.25);
+      overflow:hidden;
+      padding: 10px;
+    }
+
+    img{
+      width:100%;
+      border-radius: 14px;
+      display:none;
+    }
+
+    a.download{
+      display:none;
+      margin-top:12px;
+      width:100%;
+      text-align:center;
+      padding: 11px 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      text-decoration:none;
+      color:white;
+      background: linear-gradient(135deg, rgba(34,197,94,0.95), rgba(16,185,129,0.9));
+      border: 1px solid rgba(34,197,94,0.35);
+      box-shadow: 0 12px 30px rgba(34,197,94,0.18);
+    }
+
+    .footer{
+      margin-top:16px;
+      color: rgba(203,213,225,0.85);
+      font-size: 12.5px;
+      text-align:center;
+    }
+
+    @media (max-width: 900px){
+      .grid{ grid-template-columns:1fr; }
+      .topbar{ flex-direction:column; align-items:flex-start; }
+      .pill{ white-space: normal; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="topbar">
+      <div class="brand">
+        <h1>Smart Converter & Compressor</h1>
+        <p>KB ↔ MB ↔ GB Converter + Image size reduce (e.g., 2MB ➝ 20KB) — all in one page.</p>
+      </div>
+      <div class="pill">Binary Units: 1MB = 1024KB • 1GB = 1024MB</div>
+    </div>
+
+    <div class="grid">
+
+      <!-- UNIT CONVERTER -->
+      <div class="card">
+        <div class="card-inner">
+          <div class="title">
+            <h2>Data Unit Converter</h2>
+            <span class="badge">Fast • Accurate</span>
+          </div>
+          <div class="desc">
+            Convert easily: <b>GB→MB</b>, <b>GB→KB</b>, <b>MB→KB</b>, <b>KB→MB</b>, <b>GB→GB</b> etc.
+          </div>
+
+          <label>Enter value</label>
+          <input type="number" id="val" placeholder="e.g. 2" step="any"/>
+
+          <div class="row">
+            <div>
+              <label>From</label>
+              <select id="fromUnit">
+                <option value="KB">KB</option>
+                <option value="MB" selected>MB</option>
+                <option value="GB">GB</option>
+              </select>
+            </div>
+            <div>
+              <label>To</label>
+              <select id="toUnit">
+                <option value="KB" selected>KB</option>
+                <option value="MB">MB</option>
+                <option value="GB">GB</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="btn" onclick="convertUnits()">Convert Now</button>
+          <div class="result" id="unitResult">Result will show here.</div>
+
+          <div class="subnote">
+            Tip: Unit conversion sirf number convert karta hai. File ko “reduce” karna ho toh Image Compressor use karein.
+          </div>
+        </div>
+      </div>
+
+      <!-- IMAGE COMPRESSOR -->
+      <div class="card">
+        <div class="card-inner">
+          <div class="title">
+            <h2>Image Compressor</h2>
+            <span class="badge" style="background:rgba(34,197,94,0.18);border-color:rgba(34,197,94,0.35);">Reduce Size</span>
+          </div>
+          <div class="desc">
+            Upload image → Set target KB → Compress → Download. Works for <b>KB→KB</b> & <b>MB→KB</b> targets.
+          </div>
+
+          <label>Upload Image (JPG/PNG/WebP)</label>
+          <input type="file" id="upload" accept="image/*"/>
+
+          <label>Target size (KB)</label>
+          <input type="number" id="targetKB" placeholder="e.g. 20" />
+
+          <div class="row">
+            <div>
+              <label>Output Format</label>
+              <select id="format">
+                <option value="image/jpeg" selected>JPG (best for small KB)</option>
+                <option value="image/webp">WEBP (modern)</option>
+                <option value="image/png">PNG (usually bigger)</option>
+              </select>
+            </div>
+            <div>
+              <label>Resize</label>
+              <select id="resizeMode">
+                <option value="none" selected>No resize</option>
+                <option value="70">70%</option>
+                <option value="50">50%</option>
+                <option value="30">30%</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="btn green" onclick="compressImage()">Compress & Download</button>
+
+          <div class="result" id="imgInfo">Upload image to see details.</div>
+
+          <div class="previewWrap">
+            <img id="preview" alt="preview"/>
+            <a id="download" class="download" download="compressed-image">Download Image</a>
+          </div>
+
+          <canvas id="canvas" style="display:none;"></canvas>
+
+          <div class="subnote">
+            Note: 20KB very small hota hai. Achha result ke liye JPG + resize use karein.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer">
+      Made with HTML + CSS + JavaScript • Works offline in any modern browser.
+    </div>
+
+  </div>
+
+  <script>
+    // -------- UNIT CONVERTER (1024 base) --------
+    const toKBFactor = { KB: 1, MB: 1024, GB: 1024 * 1024 };
+
+    function formatNumber(n){
+      if (Number.isInteger(n)) return String(n);
+      return n.toFixed(8).replace(/0+$/,'').replace(/\.$/,'');
+    }
+
+    function convertUnits(){
+      const v = parseFloat(document.getElementById("val").value);
+      const from = document.getElementById("fromUnit").value;
+      const to = document.getElementById("toUnit").value;
+
+      if (isNaN(v)) {
+        document.getElementById("unitResult").innerText = "Please enter a valid number!";
+        return;
+      }
+
+      const valueInKB = v * toKBFactor[from];
+      const converted = valueInKB / toKBFactor[to];
+
+      document.getElementById("unitResult").innerText =
+        `${formatNumber(v)} ${from} = ${formatNumber(converted)} ${to}`;
+    }
+
+    // auto convert on change
+    ["val","fromUnit","toUnit"].forEach(id=>{
+      document.getElementById(id).addEventListener("input", convertUnits);
+      document.getElementById(id).addEventListener("change", convertUnits);
+    });
+    convertUnits();
+
+    // -------- IMAGE COMPRESSOR --------
+    let uploadedImage = null;
+
+    document.getElementById("upload").addEventListener("change", function(e){
+      uploadedImage = e.target.files[0];
+      const preview = document.getElementById("preview");
+      const download = document.getElementById("download");
+
+      preview.style.display = "none";
+      download.style.display = "none";
+
+      if(!uploadedImage) return;
+
+      const originalKB = (uploadedImage.size / 1024).toFixed(2);
+      document.getElementById("imgInfo").innerText = `Original Size: ${originalKB} KB`;
+    });
+
+    function approxDataUrlKB(dataUrl){
+      return dataUrl.length / 1024; // approx
+    }
+
+    function compressImage(){
+      if(!uploadedImage){
+        alert("Please upload an image first!");
+        return;
+      }
+
+      const targetKB = parseFloat(document.getElementById("targetKB").value);
+      if(isNaN(targetKB) || targetKB <= 0){
+        alert("Enter a valid target size in KB!");
+        return;
+      }
+
+      const outFormat = document.getElementById("format").value;
+      const resizeMode = document.getElementById("resizeMode").value;
+
+      const img = new Image();
+      const reader = new FileReader();
+
+      reader.onload = (event) => { img.src = event.target.result; };
+      reader.readAsDataURL(uploadedImage);
+
+      img.onload = () => {
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        // resize
+        let w = img.width, h = img.height;
+        if(resizeMode !== "none"){
+          const s = parseFloat(resizeMode)/100;
+          w = Math.max(1, Math.round(w*s));
+          h = Math.max(1, Math.round(h*s));
+        }
+
+        canvas.width = w;
+        canvas.height = h;
+        ctx.clearRect(0,0,w,h);
+        ctx.drawImage(img, 0, 0, w, h);
+
+        // If PNG chosen, quality doesn't apply much; rely on resize
+        let quality = 0.92;
+        const step = 0.04;
+
+        const makeData = () => {
+          if(outFormat === "image/png") return canvas.toDataURL("image/png");
+          return canvas.toDataURL(outFormat, quality);
+        };
+
+        let dataUrl = makeData();
+        let sizeKB = approxDataUrlKB(dataUrl);
+
+        // Try reducing quality for jpeg/webp
+        while(sizeKB > targetKB && quality > 0.06 && outFormat !== "image/png"){
+          quality = Math.max(0.06, quality - step);
+          dataUrl = makeData();
+          sizeKB = approxDataUrlKB(dataUrl);
+        }
+
+        const originalKB = (uploadedImage.size / 1024).toFixed(2);
+        const finalKB = sizeKB.toFixed(2);
+        const ext = outFormat === "image/jpeg" ? "jpg" : (outFormat === "image/webp" ? "webp" : "png");
+
+        const lines = [
+          `Original: ${originalKB} KB`,
+          `Compressed: ${finalKB} KB`,
+          `Format: ${ext.toUpperCase()}`,
+          `Resize: ${resizeMode === "none" ? "No" : resizeMode + "%"}`
+        ];
+        if(outFormat !== "image/png") lines.push(`Quality: ${quality.toFixed(2)}`);
+        else lines.push(`Note: PNG compression limited`);
+
+        document.getElementById("imgInfo").innerText = "✅ " + lines.join(" • ");
+
+        const preview = document.getElementById("preview");
+        preview.src = dataUrl;
+        preview.style.display = "block";
+
+        const download = document.getElementById("download");
+        download.href = dataUrl;
+        download.download = `compressed-image.${ext}`;
+        download.style.display = "inline-block";
+      };
+    }
+  </script>
+</body>
+</html>
